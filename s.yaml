@@ -55,4 +55,4 @@ services:
           config:    
             payload: 'config'
             cronExpression: 'CRON_TZ=Asia/Shanghai 0 0 * * * *'    
-            enable: true
+            enable: false
