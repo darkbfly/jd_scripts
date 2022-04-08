@@ -1,40 +1,90 @@
 //'use strict';
-exports.main_handler = async (event, context, callback) => {
-  try {
-    const { TENCENTSCF_SOURCE_TYPE, TENCENTSCF_SOURCE_URL } = process.env
-    //如果想在一个定时触发器里面执行多个js文件需要在定时触发器的【附加信息】里面填写对应的名称，用 & 链接
-    //例如我想一个定时触发器里执行jd_speed.js和jd_bean_change.js，在定时触发器的【附加信息】里面就填写 jd_speed&jd_bean_change
-    for (const v of event["Message"].split("&")) {
-      console.log(v);
-      var request = require('request');
-      switch (TENCENTSCF_SOURCE_TYPE) {
-        case 'local':
-          //1.执行自己上传的js文件
-          delete require.cache[require.resolve('./'+v+'.js')];
-          require('./'+v+'.js')
-          break;
-        case 'git':
-          //2.执行github远端的js文件(因github的raw类型的文件被墙,此方法云函数不推荐)
-          request(`https://raw.githubusercontent.com/LXK9301/jd_scripts/master/${v}.js`, function (error, response, body) {
-            eval(response.body)
-          })
-          break;
-        case 'custom':
-          //3.执行自定义远端js文件网址
-          if (!TENCENTSCF_SOURCE_URL) return console.log('自定义模式需要设置TENCENTSCF_SOURCE_URL变量')
-          request(`${TENCENTSCF_SOURCE_URL}${v}.js`, function (error, response, body) {
-            eval(response.body)
-          })
-          break;
-        default:
-          //4.执行国内gitee远端的js文件(如果部署在国内节点，选择1或3。默认使用gitee的方式)
-          request(`https://gitee.com/lxk0301/jd_scripts/raw/master/${v}.js`, function (error, response, body) {
-            eval(response.body)
-          })
-          break;
-      }
+const { execFile } = require( 'child_process' );
+const { readFileSync, existsSync } = require( 'fs' )
+exports.main_handler = async ( event, context, callback ) => {
+    var eventObj;
+    eventObj = JSON.parse( event ).payload
+    console.log( `开始执行: 参数为:${ eventObj }` )
+    let scripts = [];
+    const msg = eventObj.Message;
+    const async = eventObj.async;
+    scripts = loadScripts( msg );
+    const tasks = [];
+    const count = 5;
+    console.log( `run script:${ eventObj }` )
+    for ( let i = 0; i < scripts.length; i++ ) {
+        const script = scripts[i];
+        if ( i > count ) {
+            await tasks[i - count];
+            delete tasks[i - count];
+        }
+        console.log( `run script:${ script }` )
+        const name = './' + script + '.js'
+        tasks[i] = new Promise( ( resolve ) => {
+            const child = execFile( process.execPath, [name] )
+            child.stdout.on( 'data', function ( data ) {
+                console.log( data )
+            } )
+            child.stderr.on( 'data', function ( data ) {
+                console.error( data )
+            } )
+            child.on( 'close', function ( code ) {
+                console.log( `${ script } finished` )
+                delete child
+                resolve()
+            } )
+        } )
     }
-  } catch (e) {
-    console.error(e)
-  }
+
+    await Promise.all( tasks )
+
+    callback( null, "执行完毕" )
+}
+
+function loadScripts ( msg, includeAll ) {
+    let now_hour = ( new Date().getUTCHours() + 8 ) % 24
+    console.log( 'hourly config触发,当前:', now_hour )
+    if ( msg ) {
+        const hour = Number( msg )
+        if ( !isNaN( hour ) && hour >= 0 && hour <= 23 ) {
+            now_hour = hour
+            console.log( 'hourly config触发,自定义触发小时:', now_hour )
+        }
+    }
+    const config_file = __dirname + '/config.json'
+    if ( existsSync( config_file ) ) {
+        console.log( `${ config_file } 存在` )
+    } else {
+        console.error( `${ config_file } 不存在,结束` )
+        process.exit()
+    }
+    try {
+        config = JSON.parse( readFileSync( config_file ) )
+    } catch ( e ) {
+        console.error( `读取配置文件失败:${ e }` )
+        return []
+    }
+    const scripts = [];
+    for ( let script in config ) {
+        if ( includeAll ) {
+            scripts.push( script )
+            continue;
+        }
+        // console.debug(`script:${script}`)
+        const cron = config[script]
+        if ( typeof cron == 'number' ) {
+            // console.debug(`number param:${cron}`)
+            if ( now_hour % cron == 0 ) {
+                console.debug( `${ script }:数字参数触发` )
+                scripts.push( script )
+            }
+        } else {
+            // console.debug(`dict param:${cron}`)
+            if ( cron.includes && cron.includes( now_hour ) ) {
+                console.debug( `${ script }:列表参数触发` )
+                scripts.push( script )
+            }
+        }
+    }
+    return scripts;
 }
