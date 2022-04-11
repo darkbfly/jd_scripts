@@ -19,8 +19,26 @@ def 解析crontab(strCrontab):
     return list(set(listData))
 
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+
+    try:
+        import unicodedata
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
+
+    return False
+
+
 if __name__ == '__main__':
     触发器数据 = {}
+    分钟脚本 = []
     with open("crontab_list.sh", 'r', encoding='utf8') as f:
         数据 = f.readlines()
     for item in 数据:
@@ -32,11 +50,17 @@ if __name__ == '__main__':
             x = item.split(' ')
             crontabstr = x[0] + ' ' + x[1] + ' ' + x[2] + ' ' + x[3] + ' ' + x[
                 4]
-            print(crontabstr)
+            if is_number(x[0]) == False:
+                print(x[6].replace('/scripts/', '').replace('.js', '') +
+                      '不是小时计数')
+                分钟脚本.append(x[6].replace('/scripts/', '').replace('.js', ''))
+                continue
+            # print(crontabstr)
 
             # 触发器数据 += 触发器字符串.format(name=,
             #                        cron=crontabstr)
             触发器数据[x[6].replace('/scripts/',
                                '').replace('.js', '')] = 解析crontab(crontabstr)
     print(触发器数据)
+    print(分钟脚本)
     pyperclip.copy(json.dumps(触发器数据))
