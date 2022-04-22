@@ -6,12 +6,9 @@ exports.main_handler = async ( event, context, callback ) => {
     eventObj = JSON.parse( event ).payload
     console.log( `开始执行: 参数为:${ eventObj }` )
     let scripts = [];
-    const msg = eventObj.Message;
-    const async = eventObj.async;
-    scripts = loadScripts( msg );
+    scripts = loadScripts( eventObj );
     const tasks = [];
     const count = 5;
-    console.log( `run script:${ eventObj }` )
     for ( let i = 0; i < scripts.length; i++ ) {
         const script = scripts[i];
         if ( i > count ) {
@@ -51,40 +48,46 @@ function loadScripts ( msg, includeAll ) {
             console.log( 'hourly config触发,自定义触发小时:', now_hour )
         }
     }
-    const config_file = __dirname + '/config.json'
-    if ( existsSync( config_file ) ) {
-        console.log( `${ config_file } 存在` )
-    } else {
-        console.error( `${ config_file } 不存在,结束` )
-        process.exit()
-    }
-    try {
-        config = JSON.parse( readFileSync( config_file ) )
-    } catch ( e ) {
-        console.error( `读取配置文件失败:${ e }` )
-        return []
-    }
     const scripts = [];
-    for ( let script in config ) {
-        if ( includeAll ) {
-            scripts.push( script )
-            continue;
-        }
-        // console.debug(`script:${script}`)
-        const cron = config[script]
-        if ( typeof cron == 'number' ) {
-            // console.debug(`number param:${cron}`)
-            if ( now_hour % cron == 0 ) {
-                console.debug( `${ script }:数字参数触发` )
-                scripts.push( script )
-            }
+    if ( msg == 'config' ) {
+        const config_file = __dirname + '/config.json'
+        if ( existsSync( config_file ) ) {
+            console.log( `${ config_file } 存在` )
         } else {
-            // console.debug(`dict param:${cron}`)
-            if ( cron.includes && cron.includes( now_hour ) ) {
-                console.debug( `${ script }:列表参数触发` )
+            console.error( `${ config_file } 不存在,结束` )
+            process.exit()
+        }
+        try {
+            config = JSON.parse( readFileSync( config_file ) )
+        } catch ( e ) {
+            console.error( `读取配置文件失败:${ e }` )
+            return []
+        }
+
+        for ( let script in config ) {
+            if ( includeAll ) {
                 scripts.push( script )
+                continue;
+            }
+            // console.debug(`script:${script}`)
+            const cron = config[script]
+            if ( typeof cron == 'number' ) {
+                // console.debug(`number param:${cron}`)
+                if ( now_hour % cron == 0 ) {
+                    console.debug( `${ script }:数字参数触发` )
+                    scripts.push( script )
+                }
+            } else {
+                // console.debug(`dict param:${cron}`)
+                if ( cron.includes && cron.includes( now_hour ) ) {
+                    console.debug( `${ script }:列表参数触发` )
+                    scripts.push( script )
+                }
             }
         }
+    } else {
+        scripts.push( msg )
     }
+
     return scripts;
 }

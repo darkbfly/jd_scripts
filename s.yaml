@@ -56,3 +56,27 @@ services:
             payload: 'config'
             cronExpression: 'CRON_TZ=Asia/Shanghai 0 0 * * * *'    
             enable: false
+        - name: jd_live
+          type: timer
+          config:    
+            payload: 'jd_live'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 10-20/5 12 * * * *'    
+            enable: true
+        - name: jd_health_collect
+          type: timer
+          config:    
+            payload: 'jd_health_collect'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 15-55/20 * * * * *'    
+            enable: true
+        - name: jd_jddj_getPoints
+          type: timer
+          config:    
+            payload: 'jd_jddj_getPoints'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 5-40/5 * * * * *'    
+            enable: true
+        - name: jd_superBrand
+          type: timer
+          config:    
+            payload: 'jd_superBrand'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 1,10 0 * * * *'    
+            enable: true
