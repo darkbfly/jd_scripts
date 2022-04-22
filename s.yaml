@@ -54,8 +54,8 @@ services:
           type: timer
           config:    
             payload: 'config'
-            cronExpression: 'CRON_TZ=Asia/Shanghai 0 0 * * * *'    
-            enable: false
+            cronExpression: 'CRON_TZ=Asia/Shanghai 0 7 * * * *'    
+            enable: true
         - name: jd_live
           type: timer
           config:    
@@ -79,4 +79,16 @@ services:
           config:    
             payload: 'jd_superBrand'
             cronExpression: 'CRON_TZ=Asia/Shanghai 40 1,10 0 * * *'    
+            enable: true
+        - name: jd_mncryyj
+          type: timer
+          config:    
+            payload: 'jd_mncryyj'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 55 33 14 9-21/3 4 *'    
+            enable: true
+        - name: jd_superBrand
+          type: timer
+          config:    
+            payload: 'jd_superBrand'
+            cronExpression: 'CRON_TZ=Asia/Shanghai 45 32 1 10-18/3 4 *'    
             enable: true

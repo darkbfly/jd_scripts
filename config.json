@@ -42,7 +42,6 @@
   "jd_moneyTree": [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
   "jd_rankingList": [2],
   "jd_pigPet": [0, 18, 12, 6],
-  "jd_live": [12],
   "jd_kd": [0],
   "jd_beauty": [17, 9, 15],
   "jd_jxmc": [0, 3, 6, 9, 12, 15, 18, 21],
@@ -50,24 +49,15 @@
   "jd_cash": [0, 18, 12, 6],
   "jd_zjb": [8],
   "jd_jdzz": [0],
-  "jd_get_share_code": [13],
-  "jd_health_collect": [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23
-  ],
+  "jd_get_share_code": [],
   "jd_jddj_fruit": [0, 17, 11, 8],
   "jd_jddj_bean": [0, 12, 6],
   "jd_jddj_collectWater": [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     21, 22, 23
   ],
-  "jd_jddj_getPoints": [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23
-  ],
   "jd_jddj_plantBeans": [0, 4, 8, 12, 16, 20],
   "jd_drawEntrance": [3],
-  "jd_superBrand": [0],
   "jd_SendBean": [0, 12],
   "jd_wish": [0, 2],
   "jd_morningSc": [6, 7],
@@ -87,7 +77,7 @@
   "jd_jmzhl": [0, 11],
   "jd_ddworld_exchange": [0],
   "jd_fcdyj": [2, 10],
-  "jd_speed_signfree": [8, 20, 12],
+  "jd_speed_signfree": [8, 12, 20],
   "jd_nnfl": [9, 19],
   "jd_fanli": [1, 19],
   "jd_medal": [16, 7],
@@ -109,5 +99,8 @@
   "jd_sign_graphics": [2, 10],
   "jd_exchangejxbeans": [9],
   "jd_carnivalcity": [0, 18, 12, 6],
-  "jd_carnivalcity_help": [0, 8]
+  "jd_carnivalcity_help": [0, 8],
+  "jd_xs_zzl": [6, 23],
+  "jd_mncryyj": [],
+  "jd_gjlh": []
 }
